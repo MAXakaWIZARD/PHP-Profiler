@@ -7,12 +7,57 @@
 * html .profiler { position: absolute; }
 .profiler * { margin: 0; padding: 0; border: none; }
 #profiler { margin: 0 auto; width: 85%; min-width: 960px; background-color: #222; border: 12px solid #000; border-bottom: none; font-family:" Lucida Grande", Tahoma, Arial, sans-serif; -webkit-border-top-left-radius: 15px; -webkit-border-top-right-radius: 15px; -moz-border-radius-topleft: 15px; -moz-border-radius-topright: 15px; }
+
+#profiler .profiler-box
+{
+    background: url(overlay.gif);
+    border-top: 1px solid #ccc;
+    height: 200px;
+    overflow: auto;
+}
+
+#profiler .profiler-box .side td
+{
+    padding: 10px 0 5px 0;
+    /*background: url(side.png) repeat-y right;*/
+}
+
 #profiler .profiler-box h3 { font-weight: normal; line-height: 200px; padding: 0 15px; color: #fff; }
 .profiler, .profiler td { color: #444; }
 
 /* ----- IDS ----- */
 #profiler-container { z-index: 9999; }
 #profiler-metrics { background: #000; width: 100%; }
+
+#profiler-metrics #console
+{
+    color: #588E13;
+}
+
+#profiler-metrics #console
+{
+    color: #588E13;
+}
+
+#profiler-metrics #speed
+{
+    color: #3769A0;
+}
+
+#profiler-metrics #queries
+{
+    color: #953FA1;
+}
+
+#profiler-metrics #memory
+{
+    color: #D28C00;
+}
+
+#profiler-metrics #files
+{
+    color: #B72F09;
+}
 
 /* ----- Logic ----- */
 #profiler,

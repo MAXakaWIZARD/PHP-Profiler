@@ -75,27 +75,23 @@ class Profiler_Profiler
     public function gatherConsoleData()
     {
         $logs = Profiler_Console::getLogs();
+        $result = $logs;
 
-
-        foreach ($logs as $type => $data) {
+        foreach ($logs as $type => $item) {
             // Console data will already be properly formatted.
             if ($type == 'console') {
                 continue;
             }
 
             // Ignore empty message lists
-            if (!$data['count']) {
+            if (!$item['count']) {
                 continue;
             }
 
-            foreach ($data['messages'] as $message) {
+            foreach ($item['messages'] as $message) {
                 $data = $message;
 
                 switch ($type) {
-                    case 'logs':
-                        $data['type'] = 'log';
-                        $data['data'] = print_r($message['data'], true);
-                        break;
                     case 'memory':
                         $data['type'] = 'memory';
                         $data['data'] = $this->getReadableFileSize($data['data']);
@@ -111,12 +107,12 @@ class Profiler_Profiler
                 }
 
                 if (isset($data['type'])) {
-                    $logs['console']['messages'][] = $data;
+                    $result['console']['messages'][] = $data;
                 }
             }
         }
 
-        $this->output['logs'] = $logs;
+        $this->output['logs'] = $result;
     }
 
     /**
@@ -163,9 +159,13 @@ class Profiler_Profiler
     public function gatherQueryData()
     {
         $queries = array();
-        $type_default = array('total' => 0, 'time' => 0, 'percentage' => 0, 'time_percentage' => 0);
-        $types = array('select' => $type_default, 'update' => $type_default, 'insert' => $type_default,
-                       'delete' => $type_default);
+        $typeDefault = array('total' => 0, 'time' => 0, 'percentage' => 0, 'time_percentage' => 0);
+        $types = array(
+            'select' => $typeDefault,
+            'update' => $typeDefault,
+            'insert' => $typeDefault,
+            'delete' => $typeDefault
+        );
         $queryTotals = array('all' => 0, 'count' => 0, 'time' => 0, 'duplicates' => 0, 'types' => $types);
 
         foreach ($this->output['logs']['queries']['messages'] as $entries) {
@@ -216,11 +216,11 @@ class Profiler_Profiler
 
         // Go through the type totals and calculate percentages
         foreach ($queryTotals['types'] as $type => $stats) {
-            $total_perc = !$stats['total'] ? 0 : round(($stats['total'] / $queryTotals['count']) * 100, 2);
-            $time_perc = !$stats['time'] ? 0 : round(($stats['time'] / $queryTotals['time']) * 100, 2);
+            $totalPerc = !$stats['total'] ? 0 : round(($stats['total'] / $queryTotals['count']) * 100, 2);
+            $timePerc = !$stats['time'] ? 0 : round(($stats['time'] / $queryTotals['time']) * 100, 2);
 
-            $queryTotals['types'][$type]['percentage'] = $total_perc;
-            $queryTotals['types'][$type]['time_percentage'] = $time_perc;
+            $queryTotals['types'][$type]['percentage'] = $totalPerc;
+            $queryTotals['types'][$type]['time_percentage'] = $timePerc;
             $queryTotals['types'][$type]['time'] = $this->getReadableTime($queryTotals['types'][$type]['time']);
         }
 
@@ -310,8 +310,12 @@ class Profiler_Profiler
     /**
      * Collects data from the console and performs various calculations on it before
      * displaying the console on screen.
+     *
+     * @param bool $returnAsString
+     *
+     * @return mixed
      */
-    public function display()
+    public function display($returnAsString = false)
     {
         $this->gatherConsoleData();
         $this->gatherFileData();
@@ -319,7 +323,7 @@ class Profiler_Profiler
         $this->gatherQueryData();
         $this->gatherSpeedData();
 
-        Profiler_Display::display($this->output, $this->config);
+        return Profiler_Display::display($this->output, $returnAsString);
     }
 
     /**

@@ -29,7 +29,12 @@ class Profiler_Console
      */
     public static function log($data)
     {
-        self::$_logs['console']['messages'][] = array('data' => $data);
+        $logItem = array(
+            'data'     => $data,
+            'type'     => 'log',
+        );
+
+        self::$_logs['console']['messages'][] = $logItem;
         self::$_logs['console']['count'] += 1;
     }
 
@@ -45,11 +50,13 @@ class Profiler_Console
     {
         $memory = $object ? strlen(serialize($object)) : memory_get_usage();
 
-        $log_item = array('data'     => $memory,
-                          'name'     => $name,
-                          'dataType' => gettype($object));
+        $logItem = array(
+            'data'     => $memory,
+            'name'     => $name,
+            'dataType' => gettype($object)
+        );
 
-        self::$_logs['memory']['messages'][] = $log_item;
+        self::$_logs['memory']['messages'][] = $logItem;
         self::$_logs['memory']['count'] += 1;
     }
 
@@ -63,13 +70,15 @@ class Profiler_Console
      */
     public static function logError($exception, $message)
     {
-        $log_item = array('data' => $message,
-                          'type' => 'error',
-                          'file' => $exception->getFile(),
-                          'line' => $exception->getLine());
+        $logItem = array(
+            'data' => $message,
+            'type' => 'error',
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine()
+        );
 
-        self::$debugger_logs['console'][] = $log_item;
-        self::$debugger_logs['errorCount'] += 1;
+        self::$_logs['errors']['messages'][] = $logItem;
+        self::$_logs['errors']['count'] += 1;
     }
 
     /**
@@ -82,14 +91,18 @@ class Profiler_Console
      */
     public static function logSpeed($name = 'Point in Time')
     {
-        $log_item = array('data' => microtime(true), 'name' => $name);
+        $logItem = array(
+            'data' => microtime(true),
+            'name' => $name
+        );
 
-        self::$_logs['speed']['messages'][] = $log_item;
+        self::$_logs['speed']['messages'][] = $logItem;
         self::$_logs['speed']['count'] += 1;
     }
 
     /**
      * Records how long a query took to run when the same query is passed in twice.
+     *
      * @static
      *
      * @param      $sql
@@ -121,12 +134,14 @@ class Profiler_Console
             return;
         }
 
-        $log_item = array('start_time' => microtime(true),
-                          'end_time'   => false,
-                          'explain'    => false,
-                          'sql'        => $sql);
+        $logItem = array(
+            'start_time' => microtime(true),
+            'end_time'   => false,
+            'explain'    => false,
+            'sql'        => $sql
+        );
 
-        self::$_logs['queries']['messages'][$hash][] = $log_item;
+        self::$_logs['queries']['messages'][$hash][] = $logItem;
     }
 
     /**
@@ -152,11 +167,13 @@ class Profiler_Console
             return;
         }
 
-        $log_item = array('start_time' => microtime(true),
-                          'end_time'   => false,
-                          'name'       => $name);
+        $logItem = array(
+            'start_time' => microtime(true),
+            'end_time'   => false,
+            'name'       => $name
+        );
 
-        self::$_logs['benchmarks']['messages'][$key] = $log_item;
+        self::$_logs['benchmarks']['messages'][$key] = $logItem;
     }
 
     /**

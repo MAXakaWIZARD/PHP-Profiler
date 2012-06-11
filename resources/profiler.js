@@ -13,7 +13,9 @@
 
     $(document).ready(function() {
         setTimeout(function() {
-            $('#profiler-container').css('display', 'block');
+            $('#profiler-container')
+            .css('display', 'block')
+            .appendTo($('body').get(0));
         }, 10);
 
         $('.query-profile H4').css('cursor', 'pointer').click(function() {

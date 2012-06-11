@@ -9,314 +9,405 @@ class Profiler_Display
      * Outputs the HTML, CSS and JavaScript that builds the console display
      * @static
      *
-     * @param $output
+     * @param      $data
+     * @param bool $returnAsString
+     *
+     * @return mixed
      */
-    public static function display($output)
+    public static function display($data, $returnAsString = false)
     {
-        self::displayCssJavascript();
+        $output = self::getCssJavascript();
 
-        $overlay_image = base64_encode(file_get_contents(dirname(__FILE__) . '/resources/images/overlay.gif'));
-        $side_image = base64_encode(file_get_contents(dirname(__FILE__) . '/resources/images/side.png'));
+        $output .= '<div id="profiler-container" class="profiler hideDetails" style="display: none;">';
+        $output .= '<div id="profiler" class="console">';
 
-        $side_bg_style
-            = 'padding: 10px 0 5px 0; background: url(data:image/png;base64,' . $side_image . ') repeat-y right; ';
+        $output .= self::getMetricsTabs($data);
 
-        $logCount = count($output['logs']['console']['messages']);
-        $fileCount = count($output['files']);
-        $memoryUsed = $output['memoryTotals']['used'];
-        $queryCount = $output['queryTotals']['all'];
-        $speedTotal = $output['speedTotals']['total'];
+        $output .= self::getConsoleTab($data);
+        $output .= self::getLoadTimeTab($data);
+        $output .= self::getDatabaseTab($data);
+        $output .= self::getMemoryTab($data);
+        $output .= self::getFilesTab($data);
+        $output .= self::getFooter();
 
-        echo '<div id="profiler-container" class="profiler hideDetails" style="display: none;">';
-        echo '<div id="profiler" class="console">';
-        echo '<table id="profiler-metrics" cellspacing="0">';
-        echo '<tr>';
-        echo '<td id="console" class="tab" style="color: #588E13;">';
-        echo '<var>' . $logCount . '</var>';
-        echo '<h4>Console</h4>';
-        echo '</td>';
-        echo '<td id="speed" class="tab" style="color: #3769A0;">';
-        echo '<var>' . $speedTotal . '</var>';
-        echo '<h4>Load Time</h4>';
-        echo '</td>';
-        echo '<td id="queries" class="tab" style="color: #953FA1;">';
-        echo '<var>' . $queryCount . ' Queries</var>';
-        echo '<h4>Database</h4>';
-        echo '</td>';
-        echo '<td id="memory" class="tab" style="color: #D28C00;">';
-        echo '<var>' . $memoryUsed . '</var>';
-        echo '<h4>Memory Used</h4>';
-        echo '</td>';
-        echo '<td id="files" class="tab" style="color: #B72F09;">';
-        echo '<var>' . $fileCount . ' Files</var>';
-        echo '<h4>Included</h4>';
-        echo '</td>';
-        echo '</tr>';
-        echo '</table>';
+        $output .= '</div></div>';
 
-        // Start Console tab
-        echo'<div id="profiler-console" class="profiler-box" style="background: url(data:image/gif;base64,'
-            . $overlay_image . '); border-top: 1px solid #ccc; height: 200px; overflow: auto;">';
-
-        if ($logCount == 0) {
-            echo '<h3>This panel has no log items.</h3>';
+        if ($returnAsString) {
+            return $output;
         } else {
-            echo '<table class="side" cellspacing="0">';
-            echo '<tr>';
-            echo'<td class="console-log" id="console-log"><var>' . $output['logs']['console']['count']
+            echo $output;
+            return null;
+        }
+    }
+
+    /**
+     * @static
+     *
+     * @param $data
+     *
+     * @return string
+     */
+    public static function getMetricsTabs($data)
+    {
+        $logCount = count($data['logs']['console']['messages']);
+        $fileCount = count($data['files']);
+        $memoryUsed = $data['memoryTotals']['used'];
+        $queryCount = $data['queryTotals']['all'];
+        $speedTotal = $data['speedTotals']['total'];
+
+        $tabs = array(
+            'console' => array('title'=> 'Console', 'value'=> $logCount),
+            'speed'   => array('title'=> 'Load Time', 'value'=> $speedTotal),
+            'queries' => array('title'=> 'Database', 'value'=> $queryCount),
+            'memory'  => array('title'=> 'Memory Used', 'value'=> $memoryUsed),
+            'files'   => array('title'=> 'Included', 'value'=> $fileCount),
+        );
+
+        $output .= '<table id="profiler-metrics" cellspacing="0">';
+        $output .= '<tr>';
+        foreach ($tabs as $tabId => $tabData) {
+            $output .= '<td id="' . $tabId . '" class="tab">';
+            $output .= '<var>' . $tabData['value'] . '</var>';
+            $output .= '<h4>' . $tabData['title'] . '</h4>';
+            $output .= '</td>';
+        }
+        $output .= '</tr>';
+        $output .= '</table>';
+
+        return $output;
+    }
+
+    /**
+     * @static
+     *
+     * @param $data
+     *
+     * @return string
+     */
+    public static function getConsoleTab($data)
+    {
+        $output .= '<div id="profiler-console" class="profiler-box">';
+
+        if (count($data['logs']['console']['messages']) == 0) {
+            $output .= '<h3>This panel has no log items.</h3>';
+        } else {
+            $output .= '<table class="side" cellspacing="0">';
+            $output .= '<tr>';
+            $output .= '<td class="console-log" id="console-log"><var>' . $data['logs']['console']['count']
                 . '</var><h4>Logs</h4></td>';
-            echo'<td class="console-errors" id="console-error"><var>' . $output['logs']['errors']['count']
+            $output .= '<td class="console-errors" id="console-error"><var>' . $data['logs']['errors']['count']
                 . '</var> <h4>Errors</h4></td>';
-            echo '</tr>';
-            echo '<tr>';
-            echo'<td class="console-memory" id="console-memory"><var>' . $output['logs']['memory']['count']
+            $output .= '</tr>';
+            $output .= '<tr>';
+            $output .= '<td class="console-memory" id="console-memory"><var>' . $data['logs']['memory']['count']
                 . '</var> <h4>Memory</h4></td>';
-            echo'<td class="console-speed" id="console-speed"><var>' . $output['logs']['speed']['count']
+            $output .= '<td class="console-speed" id="console-speed"><var>' . $data['logs']['speed']['count']
                 . '</var> <h4>Speed</h4></td>';
-            echo '</tr>';
-            echo '<tr>';
-            echo'<td class="console-benchmarks" id="console-benchmark"><var>' . $output['logs']['benchmarks']['count']
-                . '</var><h4>Benchmarks</h4></td>';
-            echo '</tr>';
-            echo '</table>';
-            echo '<table class="main" cellspacing="0">';
+            $output .= '</tr>';
+            $output .= '<tr>';
+            $output
+                .=
+                '<td class="console-benchmarks" id="console-benchmark"><var>' . $data['logs']['benchmarks']['count']
+                    . '</var><h4>Benchmarks</h4></td>';
+            $output .= '</tr>';
+            $output .= '</table>';
+            $output .= '<table class="main" cellspacing="0">';
 
             $class = '';
-            foreach ($output['logs']['console']['messages'] as $log) {
-                echo'<tr class="log-' . $log['type'] . '"><td class="type">' . $log['type'] . '</td><td class="'
-                    . $class . '">';
+            foreach ($data['logs']['console']['messages'] as $log) {
+                $output .= '<tr class="log-' . $log['type'] . '">';
+                $output .= '<td class="type">' . $log['type'] . '</td>';
+                $output .= '<td class="data ' . $class . '">';
 
-                if ($log['type'] == 'log') {
-                    echo '<div><pre>' . $log['data'] . '</pre></div>';
-                } else {
-                    if ($log['type'] == 'memory') {
-                        echo'<div><pre>' . $log['data'] . '</pre> <em>' . $log['dataType'] . '</em>: ' . $log['name']
-                            . ' </div>';
-                    } else {
-                        if ($log['type'] == 'speed') {
-                            echo '<div><pre>' . $log['data'] . '</pre> <em>' . $log['name'] . '</em></div>';
-                        } else {
-                            if ($log['type'] == 'error') {
-                                echo'<div><em>Line ' . $log['line'] . '</em> : ' . $log['data'] . ' <pre>'
-                                    . $log['file']
-                                    . '</pre></div>';
-                            } else {
-                                if ($log['type'] == 'benchmark') {
-                                    echo '<div><pre>' . $log['data'] . '</pre> <em>' . $log['name'] . '</em></div>';
-                                }
-                            }
-                        }
-                    }
+                $output .= '<div>';
+
+                switch ($log['type']) {
+                    case 'log':
+                        $output .= '<pre>' . $log['data'] . '</pre>';
+                        break;
+                    case 'memory':
+                        $output .= '<pre>' . $log['data'] . '</pre>';
+                        $output .= ' <em>' . $log['dataType'] . '</em>: ' . $log['name'];
+                        break;
+                    case 'benchmark':
+                    case 'speed':
+                        $output .= '<pre>' . $log['data'] . '</pre> <em>' . $log['name'] . '</em>';
+                        break;
+                    case 'error':
+                        $output .= '<em>Line ' . $log['line'] . '</em> : ' . $log['data'];
+                        $output .= ' <pre>' . $log['file'] . '</pre>';
+                        break;
                 }
 
-                echo '</td></tr>';
+                $output .= '</div></td></tr>';
                 $class = ($class == '') ? 'alt' : '';
             }
 
-            echo '</table>';
+            $output .= '</table>';
         }
-        echo '</div>';
+        $output .= '</div>';
 
-        // Start Load Time tab
-        echo'<div id="profiler-speed" class="profiler-box" style="background: url(data:image/gif;base64,'
-            . $overlay_image . '); border-top: 1px solid #ccc; height: 200px; overflow: auto;">';
-        if ($output['logs']['speed']['count'] == 0) {
-            echo '<h3>This panel has no log items.</h3>';
+        return $output;
+    }
+
+    /**
+     * @static
+     *
+     * @param $data
+     *
+     * @return string
+     */
+    public static function getLoadTimeTab($data)
+    {
+        $output .= '<div id="profiler-speed" class="profiler-box">';
+        if ($data['logs']['speed']['count'] == 0) {
+            $output .= '<h3>This panel has no log items.</h3>';
         } else {
-            echo '<table class="side" cellspacing="0">';
-            echo'<tr><td style="' . $side_bg_style . '"><var>' . $output['speedTotals']['total']
+            $output .= '<table class="side" cellspacing="0">';
+            $output .= '<tr><td><var>' . $data['speedTotals']['total']
                 . '</var><h4>Load Time</h4></td></tr>';
-            echo'<tr><td class="alt" style="' . $side_bg_style . '"><var>' . $output['speedTotals']['allowed']
+            $output .= '<tr><td class="alt"><var>' . $data['speedTotals']['allowed']
                 . '</var> <h4>Max Execution Time</h4></td></tr>';
-            echo '</table>';
-            echo '<table class="main" cellspacing="0">';
+            $output .= '</table>';
+            $output .= '<table class="main" cellspacing="0">';
 
             $class = '';
-            foreach ($output['logs']['console']['messages'] as $log) {
+            foreach ($data['logs']['console']['messages'] as $log) {
                 if (isset($log['type']) && $log['type'] == 'speed') {
-                    echo '<tr class="log-speed"><td class="' . $class . '">';
-                    echo '<div><pre>' . $log['data'] . '</pre> <em>' . $log['name'] . '</em></div>';
-                    echo '</td></tr>';
+                    $output .= '<tr class="log-speed"><td class="' . $class . '">';
+                    $output .= '<div><pre>' . $log['data'] . '</pre> <em>' . $log['name'] . '</em></div>';
+                    $output .= '</td></tr>';
                     $class = ($class == '') ? 'alt' : '';
                 }
             }
 
-            echo '</table>';
+            $output .= '</table>';
         }
-        echo '</div>';
+        $output .= '</div>';
 
-        // Start Database tab
-        echo'<div id="profiler-queries" class="profiler-box" style="background: url(data:image/gif;base64,'
-            . $overlay_image . '); border-top: 1px solid #ccc; height: 200px; overflow: auto;">';
-        if ($output['queryTotals']['count'] == 0) {
-            echo '<h3>This panel has no log items.</h3>';
+        return $output;
+    }
+
+    /**
+     * @static
+     *
+     * @param $data
+     *
+     * @return string
+     */
+    public static function getDatabaseTab($data)
+    {
+        $output .= '<div id="profiler-queries" class="profiler-box">';
+        if ($data['queryTotals']['count'] == 0) {
+            $output .= '<h3>This panel has no log items.</h3>';
         } else {
-            echo '<table class="side" cellspacing="0">';
-            echo '<tr><td><var>' . $output['queryTotals']['count'] . '</var><h4>Total Queries</h4></td></tr>';
-            echo '<tr><td class="alt"><var>' . $output['queryTotals']['time'] . '</var> <h4>Total Time</h4></td></tr>';
-            echo '<tr><td><var>' . $output['queryTotals']['duplicates'] . '</var> <h4>Duplicates</h4></td></tr>';
-            echo '<tr><td class="alt">';
-            echo'<var>' . $output['queryTotals']['types']['select']['total'] . ' ('
-                . $output['queryTotals']['types']['select']['percentage'] . '%)</var>';
-            echo'<var>' . $output['queryTotals']['types']['select']['time'] . ' ('
-                . $output['queryTotals']['types']['select']['time_percentage'] . '%)</var>';
-            echo '<h4>Selects</h4>';
-            echo '</td></tr>';
-            echo '<tr><td>';
-            echo'<var>' . $output['queryTotals']['types']['update']['total'] . ' ('
-                . $output['queryTotals']['types']['update']['percentage'] . '%)</var>';
-            echo'<var>' . $output['queryTotals']['types']['update']['time'] . ' ('
-                . $output['queryTotals']['types']['update']['time_percentage'] . '%)</var>';
-            echo '<h4>Updates</h4>';
-            echo '</td></tr>';
-            echo '<tr><td class="alt">';
-            echo'<var>' . $output['queryTotals']['types']['insert']['total'] . ' ('
-                . $output['queryTotals']['types']['insert']['percentage'] . '%)</var>';
-            echo'<var>' . $output['queryTotals']['types']['insert']['time'] . ' ('
-                . $output['queryTotals']['types']['insert']['time_percentage'] . '%)</var>';
-            echo '<h4>Inserts</h4>';
-            echo '</td></tr>';
-            echo '<tr><td>';
-            echo'<var>' . $output['queryTotals']['types']['delete']['total'] . ' ('
-                . $output['queryTotals']['types']['delete']['percentage'] . '%)</var>';
-            echo'<var>' . $output['queryTotals']['types']['delete']['time'] . ' ('
-                . $output['queryTotals']['types']['delete']['time_percentage'] . '%)</var>';
-            echo '<h4>Deletes</h4>';
-            echo '</td></tr>';
-            echo '</table>';
-            echo '<table class="main" cellspacing="0">';
+            $output .= '<table class="side" cellspacing="0">';
+            $output .= '<tr><td><var>' . $data['queryTotals']['count'] . '</var><h4>Total Queries</h4></td></tr>';
+            $output
+                .=
+                '<tr><td class="alt"><var>' . $data['queryTotals']['time'] . '</var> <h4>Total Time</h4></td></tr>';
+            $output
+                .= '<tr><td><var>' . $data['queryTotals']['duplicates'] . '</var> <h4>Duplicates</h4></td></tr>';
+            $output .= '<tr><td class="alt">';
+            $output .= '<var>' . $data['queryTotals']['types']['select']['total'] . ' ('
+                . $data['queryTotals']['types']['select']['percentage'] . '%)</var>';
+            $output .= '<var>' . $data['queryTotals']['types']['select']['time'] . ' ('
+                . $data['queryTotals']['types']['select']['time_percentage'] . '%)</var>';
+            $output .= '<h4>Selects</h4>';
+            $output .= '</td></tr>';
+            $output .= '<tr><td>';
+            $output .= '<var>' . $data['queryTotals']['types']['update']['total'] . ' ('
+                . $data['queryTotals']['types']['update']['percentage'] . '%)</var>';
+            $output .= '<var>' . $data['queryTotals']['types']['update']['time'] . ' ('
+                . $data['queryTotals']['types']['update']['time_percentage'] . '%)</var>';
+            $output .= '<h4>Updates</h4>';
+            $output .= '</td></tr>';
+            $output .= '<tr><td class="alt">';
+            $output .= '<var>' . $data['queryTotals']['types']['insert']['total'] . ' ('
+                . $data['queryTotals']['types']['insert']['percentage'] . '%)</var>';
+            $output .= '<var>' . $data['queryTotals']['types']['insert']['time'] . ' ('
+                . $data['queryTotals']['types']['insert']['time_percentage'] . '%)</var>';
+            $output .= '<h4>Inserts</h4>';
+            $output .= '</td></tr>';
+            $output .= '<tr><td>';
+            $output .= '<var>' . $data['queryTotals']['types']['delete']['total'] . ' ('
+                . $data['queryTotals']['types']['delete']['percentage'] . '%)</var>';
+            $output .= '<var>' . $data['queryTotals']['types']['delete']['time'] . ' ('
+                . $data['queryTotals']['types']['delete']['time_percentage'] . '%)</var>';
+            $output .= '<h4>Deletes</h4>';
+            $output .= '</td></tr>';
+            $output .= '</table>';
+            $output .= '<table class="main" cellspacing="0">';
 
             $class = '';
-            foreach ($output['queries'] as $query) {
-                echo '<tr><td class="' . $class . '">' . $query['sql'];
+            foreach ($data['queries'] as $query) {
+                $output .= '<tr><td class="' . $class . '">' . $query['sql'];
                 if ($query['duplicate']) {
-                    echo '<strong style="display: block; color: #B72F09;">** Duplicate **</strong>';
+                    $output .= '<strong style="display: block; color: #B72F09;">** Duplicate **</strong>';
                 }
 
                 if (isset($query['explain']) && $query['explain']) {
                     $explain = $query['explain'];
-                    echo '<em>';
+                    $output .= '<em>';
 
                     if (isset($explain['possible_keys'])) {
-                        echo 'Possible keys: <b>' . $explain['possible_keys'] . '</b> &middot;';
+                        $output .= 'Possible keys: <b>' . $explain['possible_keys'] . '</b> &middot;';
                     }
 
                     if (isset($explain['key'])) {
-                        echo 'Key Used: <b>' . $explain['key'] . '</b> &middot;';
+                        $output .= 'Key Used: <b>' . $explain['key'] . '</b> &middot;';
                     }
 
                     if (isset($explain['type'])) {
-                        echo 'Type: <b>' . $explain['type'] . '</b> &middot;';
+                        $output .= 'Type: <b>' . $explain['type'] . '</b> &middot;';
                     }
 
                     if (isset($explain['rows'])) {
-                        echo 'Rows: <b>' . $explain['rows'] . '</b> &middot;';
+                        $output .= 'Rows: <b>' . $explain['rows'] . '</b> &middot;';
                     }
 
-                    echo 'Speed: <b>' . $query['time'] . '</b>';
-                    echo '</em>';
+                    $output .= 'Speed: <b>' . $query['time'] . '</b>';
+                    $output .= '</em>';
                 } else {
                     if (isset($query['time'])) {
-                        echo '<em>Speed: <b>' . $query['time'] . '</b></em>';
+                        $output .= '<em>Speed: <b>' . $query['time'] . '</b></em>';
                     }
                 }
 
                 if (isset($query['profile']) && is_array($query['profile'])) {
-                    echo '<div class="query-profile"><h4>&#187; Show Query Profile</h4>';
-                    echo '<table style="display: none">';
+                    $output .= '<div class="query-profile"><h4>&#187; Show Query Profile</h4>';
+                    $output .= '<table style="display: none">';
 
                     foreach ($query['profile'] as $line) {
-                        echo '<tr><td><em>' . $line['Status'] . '</em></td><td>' . $line['Duration'] . '</td></tr>';
+                        $output
+                            .= '<tr><td><em>' . $line['Status'] . '</em></td><td>' . $line['Duration'] . '</td></tr>';
                     }
 
-                    echo '</table>';
-                    echo '</div>';
+                    $output .= '</table>';
+                    $output .= '</div>';
                 }
 
-                echo '</td></tr>';
+                $output .= '</td></tr>';
                 $class = ($class == '') ? 'alt' : '';
             }
 
-            echo '</table>';
+            $output .= '</table>';
         }
-        echo '</div>';
+        $output .= '</div>';
 
-        // Start Memory tab
-        echo'<div id="profiler-memory" class="profiler-box" style="background: url(data:image/gif;base64,'
-            . $overlay_image . '); border-top: 1px solid #ccc; height: 200px; overflow: auto;">';
-        if ($output['logs']['memory']['count'] == 0) {
-            echo '<h3>This panel has no log items.</h3>';
+        return $output;
+    }
+
+    /**
+     * @static
+     *
+     * @param $data
+     *
+     * @return string
+     */
+    public static function getMemoryTab($data)
+    {
+        $output .= '<div id="profiler-memory" class="profiler-box">';
+        if ($data['logs']['memory']['count'] == 0) {
+            $output .= '<h3>This panel has no log items.</h3>';
         } else {
-            echo '<table class="side" cellspacing="0">';
-            echo '<tr><td><var>' . $output['memoryTotals']['used'] . '</var><h4>Used Memory</h4></td></tr>';
-            echo'<tr><td class="alt"><var>' . $output['memoryTotals']['total']
+            $output .= '<table class="side" cellspacing="0">';
+            $output .= '<tr><td><var>' . $data['memoryTotals']['used'] . '</var><h4>Used Memory</h4></td></tr>';
+            $output .= '<tr><td class="alt"><var>' . $data['memoryTotals']['total']
                 . '</var> <h4>Total Available</h4></td></tr>';
-            echo '</table>';
-            echo '<table class="main" cellspacing="0">';
+            $output .= '</table>';
+            $output .= '<table class="main" cellspacing="0">';
 
             $class = '';
-            foreach ($output['logs']['console']['messages'] as $log) {
+            foreach ($data['logs']['console']['messages'] as $log) {
                 if (isset($log['type']) && $log['type'] == 'memory') {
-                    echo '<tr class="log-message">';
-                    echo'<td class="' . $class . '"><b>' . $log['data'] . '</b> <em>' . $log['dataType'] . '</em>: '
+                    $output .= '<tr class="log-message">';
+                    $output
+                        .= '<td class="' . $class . '"><b>' . $log['data'] . '</b> <em>' . $log['dataType'] . '</em>: '
                         . $log['name'] . '</td>';
-                    echo '</tr>';
+                    $output .= '</tr>';
                     $class = ($class == '') ? 'alt' : '';
                 }
             }
 
-            echo '</table>';
+            $output .= '</table>';
         }
-        echo '</div>';
+        $output .= '</div>';
 
-        // Start Files tab
-        echo'<div id="profiler-files" class="profiler-box" style="background: url(data:image/gif;base64,'
-            . $overlay_image . '); border-top: 1px solid #ccc; height: 200px; overflow: auto;">';
-        if ($output['fileTotals']['count'] == 0) {
-            echo '<h3>This panel has no log items.</h3>';
+        return $output;
+    }
+
+    /**
+     * @static
+     *
+     * @param $data
+     *
+     * @return string
+     */
+    public static function getFilesTab($data)
+    {
+        $output .= '<div id="profiler-files" class="profiler-box">';
+        if ($data['fileTotals']['count'] == 0) {
+            $output .= '<h3>This panel has no log items.</h3>';
         } else {
-            echo '<table class="side" cellspacing="0">';
-            echo'<tr><td style="' . $side_bg_style . '"><var>' . $output['fileTotals']['count']
+            $output .= '<table class="side" cellspacing="0">';
+            $output .= '<tr><td><var>' . $data['fileTotals']['count']
                 . '</var><h4>Total Files</h4></td></tr>';
-            echo'<tr><td class="alt" style="' . $side_bg_style . '"><var>' . $output['fileTotals']['size']
+            $output .= '<tr><td class="alt"><var>' . $data['fileTotals']['size']
                 . '</var> <h4>Total Size</h4></td></tr>';
-            echo'<tr><td style="' . $side_bg_style . '"><var>' . $output['fileTotals']['largest']
+            $output .= '<tr><td><var>' . $data['fileTotals']['largest']
                 . '</var> <h4>Largest</h4></td></tr>';
-            echo '</table>';
-            echo '<table class="main" cellspacing="0">';
+            $output .= '</table>';
+            $output .= '<table class="main" cellspacing="0">';
 
             $class = '';
-            foreach ($output['files'] as $file) {
-                echo '<tr><td class="' . $class . '"><b>' . $file['size'] . '</b> ' . $file['name'] . '</td></tr>';
+            foreach ($data['files'] as $file) {
+                $output
+                    .= '<tr><td class="' . $class . '"><b>' . $file['size'] . '</b> ' . $file['name'] . '</td></tr>';
                 $class = ($class == '') ? 'alt' : '';
             }
 
-            echo '</table>';
+            $output .= '</table>';
         }
-        echo '</div>';
+        $output .= '</div>';
 
-        // Start Footer
-        echo '<table id="profiler-footer" cellspacing="0">';
-        echo '<tr>';
-        echo '<td class="credit"><a href="http://github.com/steves/PHP-Profiler" target="_blank"><strong>PHP</strong>&nbsp;Profiler</a></td>';
-        echo '<td class="actions">';
-        echo '<a class="detailsToggle" href="#">Details</a>';
-        echo '<a class="heightToggle" href="#">Toggle Height</a>';
-        echo '</td>';
-        echo '</tr>';
-        echo '</table>';
-        echo '</div></div>';
+        return $output;
+    }
+
+    /**
+     * @static
+     * @return string
+     */
+    public static function getFooter()
+    {
+        $output .= '<table id="profiler-footer" cellspacing="0">';
+        $output .= '<tr>';
+        $output .= '<td class="credit"><a href="http://github.com/steves/PHP-Profiler" target="_blank"><strong>PHP</strong>&nbsp;Profiler</a></td>';
+        $output .= '<td class="actions">';
+        $output .= '<a class="detailsToggle" href="#">Details</a>';
+        $output .= '<a class="heightToggle" href="#">Toggle Height</a>';
+        $output .= '</td>';
+        $output .= '</tr>';
+        $output .= '</table>';
+
+        return $output;
     }
 
     /**
      * Outputs profiler console styles and javascript
+     *
      * @static
      *
      */
-    public static function displayCssJavascript()
+    public static function getCssJavascript()
     {
-        echo '<style type="text/css">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.css') . '</style>';
-        echo '<script type="text/javascript">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.js')
+        /*
+        $output
+            = '<style type="text/css">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.css') . '</style>';
+        */
+        $output .= '<script type="text/javascript">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.js')
             . '</script>';
+
+        return $output;
     }
 }

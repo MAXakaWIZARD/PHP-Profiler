@@ -1,26 +1,25 @@
 # PHP Profiler #
-Version 2
 
-by Steven Surowiec
-<steven.surowiec@gmail.com>
+by MAXakaWIZARD
+<maxakawizard@gmail.com>
 
 ## Introduction ##
-PHP Profiler is a fork of PHP Quick Profiler by Ryan Campbell of [Particletree](http://particletree.com/)
+PHP-Profiler is a fork of [PHP-Profiler](https://github.com/steves/PHP-Profiler) by Steven Surowiec
 
 ## Installation ##
 Setup is very easy and straight-forward. There are five primary steps that need to be done.
 
 1. Checkout the code into your libraries directory so that the classes can be auto loaded.
 2. Instantiate Profiler_Profiler
-3. At the end of your application after all else is done call the display() method on Profiler_Profiler. 
+3. At the end of your application after all else is done call the display() method on Profiler_Profiler.
 
 ## Setup and Usage ##
 Setting up PHP Profiler is quite simple. Below is a short code sample of the latest version.
 
     $profiler = new Profiler_Profiler();
-    Profiler_Console::logSpeed('Start Sample run');
-    Profiler_Console::logMemory($object);
-    Profiler_Console::logSpeed('End Sample run');
+    $profiler->logSpeed('Start Sample run');
+    $profiler->logMemory($object);
+    $profiler->logSpeed('End Sample run');
     $profiler->display();
 
 Exceptions can also be logged:
@@ -29,21 +28,21 @@ Exceptions can also be logged:
       // Some code goes here
     }
     catch (Exception $e) {
-      Profiler_Console::logError($e, $e->getMessage());
+      $profiler->logError($e, $e->getMessage());
     }
 
 Database queries can be logged as well:
 
-    Profiler_Console::logQuery($sql);  // Starts timer for query
+    $profiler->logQuery($sql);  // Starts timer for query
     $res = mysql_query($sql);
-    Profiler_Console::logQuery($sql);  // Ends timer for query
+    $profiler->logQuery($sql);  // Ends timer for query
 
 Using a custom callback to explain queries for console
 
     $profiler = Profiler_Profiler(array('query_explain_callback' => array('My_Class', 'someMethod')));
-    Profiler_Console::logQuery($sql); // Starts timer for query
+    $profiler->logQuery($sql); // Starts timer for query
     $res = mysql_query($sql);
-    Profiler_Console::logQuery($sql); // Ends timer for query
+    $profiler->logQuery($sql); // Ends timer for query
     $profiler->display();
 
     class My_Class {
@@ -74,6 +73,3 @@ Below are some of the features of PHP Profiler
 - Log memory usage of any string, variable or object
 - Log specific points in your script to see how long it takes to get to them
 - See how many queries on a given page are inserts, updates, selects and deletes with query type counting
-
-## Sites Using PHP Profiler ##
-Using PHP Profiler on your site? Let me know! If you don't want to be featured here just say so, but I still like knowing how people are using PHP Profiler so send me a message or an email and let me know.

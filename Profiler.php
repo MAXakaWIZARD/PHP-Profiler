@@ -433,18 +433,43 @@ class Profiler_Profiler
     /**
      * Logs the memory usage of the provided variable, or entire script
      *
-     * @param object $object Optional variable to log the memory usage of
      * @param string $name   Optional name used to group variables and scripts together
+     * @param mixed $variable Optional variable to log the memory usage of
      *
      * @return void
      */
-    public function logMemory($object = null, $name = 'PHP')
+    public function logMemory($name = 'Memory usage at this point', $variable = null)
     {
         if (!$this->isEnabled()) {
             return;
         }
 
-        $this->_console->logMemory($object, $name);
+        $this->_console->logMemory($name, $variable);
+    }
+
+    /**
+     * @param mixed $variable
+     * @param string $name
+     */
+    public function logVarMemory($name = 'Variable memory usage at this point', $variable = null)
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $this->_console->logVarMemory($name, $variable);
+    }
+
+    /**
+     * @param string $name
+     */
+    public function logPeakMemory($name = 'Peak memory usage at this point')
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $this->_console->logPeakMemory($name);
     }
 
     /**
@@ -455,7 +480,7 @@ class Profiler_Profiler
      *
      * @return void
      */
-    public function logError($exception, $message)
+    public function logError($exception, $message = '')
     {
         if (!$this->isEnabled()) {
             return;
@@ -472,7 +497,7 @@ class Profiler_Profiler
      *
      * @return void
      */
-    public function logSpeed($name = 'Point in Time')
+    public function logSpeed($name = 'Point in time')
     {
         if (!$this->isEnabled()) {
             return;

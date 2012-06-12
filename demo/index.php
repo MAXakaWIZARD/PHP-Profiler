@@ -8,13 +8,21 @@ require('../Display.php');
 
 $profiler = new Profiler_Profiler();
 
-$profiler->log('test message');
+$profiler->log('Test message');
 
-$profiler->logMemory(null, 'memory consumption at this point');
+try {
+    throw new Exception('Some exception');
+} catch (Exception $e) {
+    $profiler->logError($e);
+}
 
-$profiler->logBenchmark('bench');
+$profiler->logMemory('Memory consumption at this point');
+
+$profiler->logBenchmark('Bench');
 usleep(5000);
-$profiler->logBenchmark('bench');
+$profiler->logBenchmark('Bench');
+
+$profiler->logPeakMemory();
 
 $console = $profiler->display(true);
 ?>

@@ -18,7 +18,7 @@ Setting up PHP Profiler is quite simple. Below is a short code sample of the lat
 
     $profiler = new Profiler_Profiler();
     $profiler->logSpeed('Start Sample run');
-    $profiler->logMemory($object);
+    $profiler->logVarMemory($object);
     $profiler->logSpeed('End Sample run');
     $profiler->display();
 
@@ -26,9 +26,10 @@ Exceptions can also be logged:
 
     try {
       // Some code goes here
+      throw new Exception('Some exception');
     }
     catch (Exception $e) {
-      $profiler->logError($e, $e->getMessage());
+      $profiler->logError($e);
     }
 
 Database queries can be logged as well:

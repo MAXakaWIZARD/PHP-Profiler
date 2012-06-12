@@ -21,6 +21,16 @@ class Profiler_Console
         );
 
     /**
+     * @param $category
+     * @param $item
+     */
+    protected function _write($category, $item)
+    {
+        $this->_logs[$category]['messages'][] = $item;
+        $this->_logs[$category]['count'] += 1;
+    }
+
+    /**
      * Logs a variable to the console
      *
      * @param mixed $data The data to log to the console
@@ -34,30 +44,57 @@ class Profiler_Console
             'type'     => 'log',
         );
 
-        $this->_logs['console']['messages'][] = $logItem;
-        $this->_logs['console']['count'] += 1;
+        $this->_write('console', $logItem);
     }
 
     /**
      * Logs the memory usage of the provided variable, or entire script
      *
-     * @param object $object Optional variable to log the memory usage of
      * @param string $name   Optional name used to group variables and scripts together
+     * @param mixed $variable Optional variable to log the memory usage of
      *
      * @return void
      */
-    public function logMemory($object = null, $name = 'PHP')
+    public function logMemory($name = 'Memory usage at this point', $variable = null)
     {
-        $memory = $object ? strlen(serialize($object)) : memory_get_usage();
+        if (!is_null($variable)) {
+            $this->logVarMemory($name, $variable);
+        }
 
         $logItem = array(
-            'data'     => $memory,
-            'name'     => $name,
-            'dataType' => gettype($object)
+            'data' => memory_get_usage(),
+            'name' => $name
         );
 
-        $this->_logs['memory']['messages'][] = $logItem;
-        $this->_logs['memory']['count'] += 1;
+        $this->_write('memory', $logItem);
+    }
+
+    /**
+     * @param string $name
+     * @param        $variable
+     */
+    public function logVarMemory($name = 'Variable memory usage at this point', $variable = null)
+    {
+        $logItem = array(
+            'data'     => strlen(serialize($variable)),
+            'name'     => $name,
+            'dataType' => gettype($variable)
+        );
+
+        $this->_write('memory', $logItem);
+    }
+
+    /**
+     * @param string $name
+     */
+    public function logPeakMemory($name = 'Peak memory usage at this point')
+    {
+        $logItem = array(
+            'data' => memory_get_peak_usage(),
+            'name' => $name
+        );
+
+        $this->_write('memory', $logItem);
     }
 
     /**
@@ -68,17 +105,16 @@ class Profiler_Console
      *
      * @return void
      */
-    public function logError($exception, $message)
+    public function logError($exception, $message = '')
     {
         $logItem = array(
-            'data' => $message,
+            'data' => ($message) ? $message : $exception->getMessage(),
             'type' => 'error',
             'file' => $exception->getFile(),
             'line' => $exception->getLine()
         );
 
-        $this->_logs['errors']['messages'][] = $logItem;
-        $this->_logs['errors']['count'] += 1;
+        $this->_write('errors', $logItem);
     }
 
     /**
@@ -96,8 +132,7 @@ class Profiler_Console
             'name' => $name
         );
 
-        $this->_logs['speed']['messages'][] = $logItem;
-        $this->_logs['speed']['count'] += 1;
+        $this->_write('speed', $logItem);
     }
 
     /**

@@ -3,13 +3,6 @@
     var height_toggle = false;
     var selected_log_type = null;
 
-    /**
-     *
-     */
-    function hideAllTabs() {
-        $('#profiler').removeClass('console speed queries memory files');
-    }
-
     $(document).ready(function() {
 
         //move console to the end ot body children
@@ -29,6 +22,12 @@
             $('#profiler-container').toggleClass('hideDetails', profiler_details);
             profiler_details = !profiler_details;
 
+            if (profiler_details) {
+                $('#profiler .tab.active').click();
+            } else {
+                $('.profiler-box').hide();
+            }
+
             return false;
         });
 
@@ -41,8 +40,11 @@
         });
 
         $('#profiler .tab').click(function() {
-            hideAllTabs();
-            $('#profiler').addClass($(this).attr('id'));
+            $('#profiler .tab').removeClass('active');
+            $(this).addClass('active');
+
+            $('.profiler-box').hide();
+            $('#profiler-' + $(this).attr('id')).show();
 
             if (!profiler_details) {
                 profiler_details = true;
@@ -58,7 +60,7 @@
                 return;
             }
 
-            $(this).css('cursor', 'pointer').click(function() {
+            $(this).click(function() {
                 $('#profiler-console .main tr').each(function() {
                     var row_type = $(this).attr('class').split('-')[1];
 

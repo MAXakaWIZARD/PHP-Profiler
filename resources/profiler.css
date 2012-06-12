@@ -8,6 +8,7 @@
     text-align: center;
     position: fixed;
     bottom: 0;
+    z-index: 9999;
 }
 
 #profiler-container * {
@@ -26,13 +27,15 @@
     -webkit-border-radius: 10px 10px 0 0;
     -moz-border-radius: 10px 10px 0 0;
     border-radius: 10px 10px 0 0;
-    padding: 10px;
+    padding: 10px 10px 0 10px;
+    color: #444;
 }
 
 #profiler .profiler-box {
     border-top: 1px solid #ccc;
     height: 200px;
     overflow: auto;
+    display: none;
 }
 
 #profiler .profiler-box .side td {
@@ -47,29 +50,12 @@
     color: #fff;
 }
 
-#profiler, #profiler td {
-    color: #444;
-}
-
-#profiler td.tab {
-    text-align: center;
-}
-
 #profiler h4 {
     width: 100%;
     text-align: center;
 }
 
-/* ----- IDS ----- */
-#profiler-container {
-    z-index: 9999;
-}
-
-#profiler-metrics {
-    background: #000;
-    width: 100%;
-}
-
+/* ----- TABS ----- */
 #profiler-metrics #console {
     color: #588E13;
 }
@@ -90,48 +76,41 @@
     color: #B72F09;
 }
 
-/* ----- Logic ----- */
-#profiler,
-#profiler-console,
-#profiler-speed,
-#profiler-queries,
-#profiler-memory,
-#profiler-files {
-    display: none;
+#profiler-metrics {
+    width: 100%;
 }
 
-#profiler-container .console,
-#profiler-container .speed,
-#profiler-container .queries,
-#profiler-container .memory,
-#profiler-container .files {
-    display: block !important;
+#profiler-metrics .tab {
+    float: left;
+    width: 20%;
+    text-align: center;
+    cursor: pointer;
+    background-color: #222;
+    border-bottom: 6px solid #666;
+    padding-top: 5px;
+    text-shadow: #000 0 1px;
 }
 
-#profiler-container .console #profiler-console,
-#profiler-container .speed #profiler-speed,
-#profiler-container .queries #profiler-queries,
-#profiler-container .memory #profiler-memory,
-#profiler-container .files #profiler-files {
-    display: block;
+#profiler-metrics .tab.active {
+    background: #000;
+    border-bottom: 6px solid #fff;
+    cursor: default;
+    -webkit-border-radius: 10px 10px 0 0;
+    -moz-border-radius: 10px 10px 0 0;
+    border-radius: 10px 10px 0 0;
 }
 
-.console td#console.active,
-.speed td#speed.active,
-.queries td#queries.active,
-.memory td#memory.active,
-.files td#files.active {
-    background: #222 !important;
-    border-bottom: 6px solid #fff !important;
-    cursor: default !important;
+#profiler-metrics .tab:hover {
+    background: #666;
+    border-bottom: 6px solid #aaa;
+    cursor: pointer;
+    -webkit-border-radius: 10px 10px 0 0;
+    -moz-border-radius: 10px 10px 0 0;
+    border-radius: 10px 10px 0 0;
 }
 
 #profiler-container.hideDetails #profiler .profiler-box {
     display: none;
-}
-
-#profiler-container.hideDetails #profiler-footer {
-    border-top: 1px dotted #444;
 }
 
 #profiler-container.hideDetails #profiler #profiler-metrics td {
@@ -146,33 +125,6 @@
 
 #profiler-container.hideDetails #profiler h4 {
     font-size: 10px;
-}
-
-/* ----- Metrics ----- */
-#profiler-metrics td {
-    height: 80px;
-    width: 20%;
-    text-align: center;
-    cursor: pointer;
-    border: 1px solid #000;
-    border-bottom: 6px solid #444;
-}
-
-#profiler-metrics td:hover {
-    background: #222;
-    border-bottom: 6px solid #777;
-}
-
-#profiler-metrics #console {
-    border-left: none;
-}
-
-#profiler-metrics #files {
-    border-right: none;
-}
-
-#profiler-metrics h4 {
-    text-shadow: #000 1px 1px 1px;
 }
 
 .side var {
@@ -426,14 +378,9 @@
 /* ----- Footer ----- */
 #profiler-footer {
     width: 100%;
-    background: #000;
+    /*background: #000;*/
     font-size: 11px;
     border-top: 1px solid #ccc;
-}
-
-#profiler-footer td {
-    padding: 0 !important;
-    border: none !important;
 }
 
 #profiler-footer strong {
@@ -444,15 +391,18 @@
     color: #999;
     padding: 5px 10px;
     text-decoration: none;
+    cursor: pointer;
+    display: block;
 }
 
 #profiler-footer .credit {
-    width: 20%;
+    float: left;
     text-align: left;
 }
 
 #profiler-footer .actions {
     width: 80%;
+    float: right;
     text-align: right;
 }
 
@@ -465,7 +415,7 @@
 #profiler-footer a:hover strong,
 #profiler-footer a:hover b {
     background: #fff;
-    color: blue !important;
+    color: blue;
     text-decoration: underline;
 }
 
@@ -473,5 +423,5 @@
 #profiler-footer a:active strong,
 #profiler-footer a:active b {
     background: #ECF488;
-    color: green !important;
+    color: green;
 }

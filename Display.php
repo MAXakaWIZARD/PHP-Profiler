@@ -22,7 +22,7 @@ class Profiler_Display
         $output .= '<div id="profiler-container" class="hideDetails">';
         $output .= '<div id="profiler" class="console">';
 
-        $output .= self::getMetricsTabs($data);
+        $output .= self::getMainTabs($data);
 
         $output .= self::getConsoleTab($data);
         $output .= self::getLoadTimeTab($data);
@@ -48,7 +48,7 @@ class Profiler_Display
      *
      * @return string
      */
-    public static function getMetricsTabs($data)
+    public static function getMainTabs($data)
     {
         $logCount = count($data['logs']['console']['messages']);
         $fileCount = count($data['files']);
@@ -64,16 +64,15 @@ class Profiler_Display
             'files'   => array('title'=> 'Included', 'value'=> $fileCount),
         );
 
-        $output = '<table id="profiler-metrics" cellspacing="0">';
-        $output .= '<tr>';
+        $output = '<div id="profiler-metrics">';
         foreach ($tabs as $tabId => $tabData) {
-            $output .= '<td id="' . $tabId . '" class="tab">';
+            $output .= '<div id="' . $tabId . '" class="tab">';
             $output .= '<var>' . $tabData['value'] . '</var>';
             $output .= '<h4>' . $tabData['title'] . '</h4>';
-            $output .= '</td>';
+            $output .= '</div>';
         }
-        $output .= '</tr>';
-        $output .= '</table>';
+        $output .= '<div style="clear: both;"></div>';
+        $output .= '</div>';
 
         return $output;
     }
@@ -127,7 +126,7 @@ class Profiler_Display
                         break;
                     case 'memory':
                         $output .= '<pre>' . $log['data'] . '</pre>';
-                        if ($log['dataType'] != 'NULL') {
+                        if (isset($log['dataType']) && $log['dataType'] != 'NULL') {
                             $output .= ' <em>' . $log['dataType'] . '</em>: ';
                         }
                         $output .= $log['name'];
@@ -325,7 +324,7 @@ class Profiler_Display
                 if (isset($log['type']) && $log['type'] == 'memory') {
                     $output .= '<tr class="log-message">';
                     $output .= '<td class="' . $class . '"><b>' . $log['data'] . '</b>';
-                    if ($log['dataType'] != 'NULL') {
+                    if (isset($log['dataType']) && $log['dataType'] != 'NULL') {
                         $output .= '<em>' . $log['dataType'] . '</em>: ';
                     }
                     $output .= $log['name'] . '</td>';
@@ -384,15 +383,14 @@ class Profiler_Display
      */
     public static function getFooter()
     {
-        $output = '<table id="profiler-footer" cellspacing="0">';
-        $output .= '<tr>';
-        $output .= '<td class="credit"><a href="https://github.com/MAXakaWIZARD/PHP-Profiler" target="_blank"><strong>PHP</strong>&nbsp;Profiler</a></td>';
-        $output .= '<td class="actions">';
-        $output .= '<a class="detailsToggle" href="#">Details</a>';
-        $output .= '<a class="heightToggle" href="#">Toggle Height</a>';
-        $output .= '</td>';
-        $output .= '</tr>';
-        $output .= '</table>';
+        $output = '<div id="profiler-footer">';
+        $output .= '<div class="credit"><a href="https://github.com/MAXakaWIZARD/PHP-Profiler" target="_blank"><strong>PHP</strong>&nbsp;Profiler</a></div>';
+        $output .= '<div class="actions">';
+        $output .= '<a class="detailsToggle">Details</a>';
+        $output .= '<a class="heightToggle">Toggle Height</a>';
+        $output .= '</div>';
+        $output .= '<div style="clear: both;"></div>';
+        $output .= '</div>';
 
         return $output;
     }

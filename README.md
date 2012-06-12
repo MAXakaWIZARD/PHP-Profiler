@@ -12,7 +12,6 @@ Setup is very easy and straight-forward. There are five primary steps that need 
 1. Checkout the code into your libraries directory so that the classes can be auto loaded.
 2. Instantiate Profiler_Profiler
 3. At the end of your application after all else is done call the display() method on Profiler_Profiler.
-4. Ensure jQuery is included in your page
 
 ## Setup and Usage ##
 Setting up PHP Profiler is quite simple. Below is a short code sample of the latest version.

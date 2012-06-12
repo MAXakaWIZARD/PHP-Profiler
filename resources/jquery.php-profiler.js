@@ -3,12 +3,11 @@
     var height_toggle = false;
     var selected_log_type = null;
 
+    /**
+     *
+     */
     function hideAllTabs() {
-        $('#profiler').removeClass('console')
-                 .removeClass('speed')
-                 .removeClass('queries')
-                 .removeClass('memory')
-                 .removeClass('files');
+        $('#profiler').removeClass('console speed queries memory files');
     }
 
     $(document).ready(function() {

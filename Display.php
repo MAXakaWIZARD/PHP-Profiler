@@ -405,10 +405,12 @@ class Profiler_Display
         $css = file_get_contents($baseDir . '/resources/profiler.css');
         $output = '<style type="text/css">' . $css . '</style>';
 
-        //$jqueryJs = file_get_contents($baseDir . '/resources/jquery-1.7.2.min.js');
+        $jqueryJs = file_get_contents($baseDir . '/resources/jquery-1.7.2.min.js');
         $profilerJs = file_get_contents($baseDir . '/resources/jquery.php-profiler.js');
         $output .= '<script type="text/javascript">';
-        //$output .= $jqueryJs;
+        $output .= "if (typeof jQuery === 'undefined') {";
+        $output .= $jqueryJs;
+        $output .= "\n}\n";
         $output .= $profilerJs;
         $output .= '</script>';
 

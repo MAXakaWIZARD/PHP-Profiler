@@ -8,10 +8,12 @@ require('../Display.php');
 
 $profiler = new Profiler_Profiler();
 
+$profiler->log('test message');
+
 $profiler->logMemory();
 
 $profiler->logBenchmark('bench');
-usleep(2000);
+usleep(5000);
 $profiler->logBenchmark('bench');
 
 $console = $profiler->display(true);
@@ -20,7 +22,6 @@ $console = $profiler->display(true);
 <html>
 <head>
     <title>PHP Profiler demo</title>
-    <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
 </head>
 <body>
     <?php echo $console; ?>

@@ -25,12 +25,13 @@ class Profiler_Profiler
      * @var array
      *
      */
-    protected $_queryTypes = array(
-        'select',
-        'update',
-        'delete',
-        'insert'
-    );
+    protected $_queryTypes
+        = array(
+            'select',
+            'update',
+            'delete',
+            'insert'
+        );
 
     /**
      * @var Profiler_Console
@@ -117,7 +118,7 @@ class Profiler_Profiler
     /**
      * Collects and aggregates data recorded by Profiler_Console.
      */
-    public function gatherConsoleData()
+    protected function _gatherConsoleData()
     {
         $logs = $this->_console->getLogs();
         $result = $logs;
@@ -139,15 +140,15 @@ class Profiler_Profiler
                 switch ($type) {
                     case 'memory':
                         $data['type'] = 'memory';
-                        $data['data'] = $this->getReadableFileSize($data['data']);
+                        $data['data'] = $this->_getReadableFileSize($data['data']);
                         break;
                     case 'speed':
                         $data['type'] = 'speed';
-                        $data['data'] = $this->getReadableTime($message['data'] - $this->_startTime);
+                        $data['data'] = $this->_getReadableTime($message['data'] - $this->_startTime);
                         break;
                     case 'benchmarks':
                         $data['type'] = 'benchmark';
-                        $data['data'] = $this->getReadableTime($message['end_time'] - $message['start_time']);
+                        $data['data'] = $this->_getReadableTime($message['end_time'] - $message['start_time']);
                         break;
                 }
 
@@ -163,15 +164,22 @@ class Profiler_Profiler
     /**
      * Gathers and aggregates data on included files such as size
      */
-    public function gatherFileData()
+    protected function _gatherFileData()
     {
         $files = get_included_files();
         $fileList = array();
-        $fileTotals = array('count' => count($files), 'size' => 0, 'largest' => 0);
+        $fileTotals = array(
+            'count'   => count($files),
+            'size'    => 0,
+            'largest' => 0
+        );
 
         foreach ($files as $key => $file) {
             $size = filesize($file);
-            $fileList[] = array('name' => $file, 'size' => $this->getReadableFileSize($size));
+            $fileList[] = array(
+                'name' => $file,
+                'size' => $this->_getReadableFileSize($size)
+            );
             $fileTotals['size'] += $size;
 
             if ($size > $fileTotals['largest']) {
@@ -179,8 +187,8 @@ class Profiler_Profiler
             }
         }
 
-        $fileTotals['size'] = $this->getReadableFileSize($fileTotals['size']);
-        $fileTotals['largest'] = $this->getReadableFileSize($fileTotals['largest']);
+        $fileTotals['size'] = $this->_getReadableFileSize($fileTotals['size']);
+        $fileTotals['largest'] = $this->_getReadableFileSize($fileTotals['largest']);
 
         $this->_output['files'] = $fileList;
         $this->_output['fileTotals'] = $fileTotals;
@@ -189,10 +197,10 @@ class Profiler_Profiler
     /**
      * Gets the peak memory usage the configured memory limit
      */
-    public function gatherMemoryData()
+    protected function _gatherMemoryData()
     {
         $memoryTotals = array();
-        $memoryTotals['used'] = $this->getReadableFileSize(memory_get_peak_usage());
+        $memoryTotals['used'] = $this->_getReadableFileSize(memory_get_peak_usage());
         $memoryTotals['total'] = ini_get('memory_limit');
 
         $this->_output['memoryTotals'] = $memoryTotals;
@@ -201,7 +209,7 @@ class Profiler_Profiler
     /**
      * Gathers and aggregates data regarding executed queries
      */
-    public function gatherQueryData()
+    protected function _gatherQueryData()
     {
         $queries = array();
         $typeDefault = array('total' => 0, 'time' => 0, 'percentage' => 0, 'time_percentage' => 0);
@@ -221,10 +229,12 @@ class Profiler_Profiler
             $queryTotals['count'] += 1;
             foreach ($entries as $i => $log) {
                 if (isset($log['end_time'])) {
-                    $query = array('sql'       => $log['sql'],
-                                   'explain'   => $log['explain'],
-                                   'time'      => ($log['end_time'] - $log['start_time']),
-                                   'duplicate' => $i > 0 ? true : false);
+                    $query = array(
+                        'sql'       => $log['sql'],
+                        'explain'   => $log['explain'],
+                        'time'      => ($log['end_time'] - $log['start_time']),
+                        'duplicate' => $i > 0 ? true : false
+                    );
 
                     // Lets figure out the type of query for our counts
                     $trimmed = trim($log['sql']);
@@ -238,7 +248,7 @@ class Profiler_Profiler
                     // Need to get total times and a readable format of our query time
                     $queryTotals['time'] += $query['time'];
                     $queryTotals['all'] += 1;
-                    $query['time'] = $this->getReadableTime($query['time']);
+                    $query['time'] = $this->_getReadableTime($query['time']);
 
                     // If an explain callback is setup try to get the explain data
                     if (isset($this->_queryTypes[$type]) && isset($this->_config['query_explain_callback'])
@@ -266,10 +276,10 @@ class Profiler_Profiler
 
             $queryTotals['types'][$type]['percentage'] = $totalPerc;
             $queryTotals['types'][$type]['time_percentage'] = $timePerc;
-            $queryTotals['types'][$type]['time'] = $this->getReadableTime($queryTotals['types'][$type]['time']);
+            $queryTotals['types'][$type]['time'] = $this->_getReadableTime($queryTotals['types'][$type]['time']);
         }
 
-        $queryTotals['time'] = $this->getReadableTime($queryTotals['time']);
+        $queryTotals['time'] = $this->_getReadableTime($queryTotals['time']);
         $this->_output['queries'] = $queries;
         $this->_output['queryTotals'] = $queryTotals;
     }
@@ -278,10 +288,10 @@ class Profiler_Profiler
      * Calculates the execution time from the start of profiling to *now* and
      * collects the congirued maximum execution time.
      */
-    public function gatherSpeedData()
+    protected function _gatherSpeedData()
     {
         $speedTotals = array();
-        $speedTotals['total'] = $this->getReadableTime(microtime(true) - $this->_startTime);
+        $speedTotals['total'] = $this->_getReadableTime(microtime(true) - $this->_startTime);
         $speedTotals['allowed'] = ini_get('max_execution_time');
         $this->_output['speedTotals'] = $speedTotals;
     }
@@ -289,17 +299,17 @@ class Profiler_Profiler
     /**
      * Converts a number of bytes to a more readable format
      *
-     * @param int    $size      The number of bytes
-     * @param mixed $retstring The format of the return string
+     * @param int   $size      The number of bytes
+     * @param string $formatString The format of the return string
      *
      * @return string
      */
-    public function getReadableFileSize($size, $retString = null)
+    protected function _getReadableFileSize($size, $formatString = '')
     {
         $sizes = array('bytes', 'kB', 'MB', 'GB', 'TB');
 
-        if ($retString === null) {
-            $retString = '%01.2f %s';
+        if (!$formatString) {
+            $formatString = '%01.2f %s';
         }
 
         $lastSizeString = end($sizes);
@@ -315,10 +325,10 @@ class Profiler_Profiler
         }
 
         if ($sizeString == $sizes[0]) {
-            $retString = '%01d %s';
+            $formatString = '%01d %s';
         }
 
-        return sprintf($retString, $size, $sizeString);
+        return sprintf($formatString, $size, $sizeString);
     }
 
     /**
@@ -328,7 +338,7 @@ class Profiler_Profiler
      *
      * @return int
      */
-    public function getReadableTime($time)
+    protected function _getReadableTime($time)
     {
         if ($time < 0.001) {
             //microseconds
@@ -362,11 +372,11 @@ class Profiler_Profiler
      */
     public function display($returnAsString = false)
     {
-        $this->gatherConsoleData();
-        $this->gatherFileData();
-        $this->gatherMemoryData();
-        $this->gatherQueryData();
-        $this->gatherSpeedData();
+        $this->_gatherConsoleData();
+        $this->_gatherFileData();
+        $this->_gatherMemoryData();
+        $this->_gatherQueryData();
+        $this->_gatherSpeedData();
 
         return Profiler_Display::display($this->_output, $returnAsString);
     }

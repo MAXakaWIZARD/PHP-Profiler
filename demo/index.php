@@ -10,7 +10,7 @@ $profiler = new Profiler_Profiler();
 
 $profiler->log('test message');
 
-$profiler->logMemory();
+$profiler->logMemory(null, 'memory consumption at this point');
 
 $profiler->logBenchmark('bench');
 usleep(5000);

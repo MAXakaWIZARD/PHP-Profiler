@@ -127,7 +127,10 @@ class Profiler_Display
                         break;
                     case 'memory':
                         $output .= '<pre>' . $log['data'] . '</pre>';
-                        $output .= ' <em>' . $log['dataType'] . '</em>: ' . $log['name'];
+                        if ($log['dataType'] != 'NULL') {
+                            $output .= ' <em>' . $log['dataType'] . '</em>: ';
+                        }
+                        $output .= $log['name'];
                         break;
                     case 'benchmark':
                     case 'speed':
@@ -321,9 +324,11 @@ class Profiler_Display
             foreach ($data['logs']['console']['messages'] as $log) {
                 if (isset($log['type']) && $log['type'] == 'memory') {
                     $output .= '<tr class="log-message">';
-                    $output
-                        .= '<td class="' . $class . '"><b>' . $log['data'] . '</b> <em>' . $log['dataType'] . '</em>: '
-                        . $log['name'] . '</td>';
+                    $output .= '<td class="' . $class . '"><b>' . $log['data'] . '</b>';
+                    if ($log['dataType'] != 'NULL') {
+                        $output .= '<em>' . $log['dataType'] . '</em>: ';
+                    }
+                    $output .= $log['name'] . '</td>';
                     $output .= '</tr>';
                     $class = ($class == '') ? 'alt' : '';
                 }

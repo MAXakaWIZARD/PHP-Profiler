@@ -10,7 +10,7 @@ class Profiler_Console
      *
      * @var array
      */
-    private static $_logs
+    private $_logs
         = array(
             'console'    => array('messages' => array(), 'count' => 0),
             'memory'     => array('messages' => array(), 'count' => 0),
@@ -27,15 +27,15 @@ class Profiler_Console
      *
      * @return void
      */
-    public static function log($data)
+    public function log($data)
     {
         $logItem = array(
             'data'     => $data,
             'type'     => 'log',
         );
 
-        self::$_logs['console']['messages'][] = $logItem;
-        self::$_logs['console']['count'] += 1;
+        $this->_logs['console']['messages'][] = $logItem;
+        $this->_logs['console']['count'] += 1;
     }
 
     /**
@@ -46,7 +46,7 @@ class Profiler_Console
      *
      * @return void
      */
-    public static function logMemory($object = false, $name = 'PHP')
+    public function logMemory($object = null, $name = 'PHP')
     {
         $memory = $object ? strlen(serialize($object)) : memory_get_usage();
 
@@ -56,8 +56,8 @@ class Profiler_Console
             'dataType' => gettype($object)
         );
 
-        self::$_logs['memory']['messages'][] = $logItem;
-        self::$_logs['memory']['count'] += 1;
+        $this->_logs['memory']['messages'][] = $logItem;
+        $this->_logs['memory']['count'] += 1;
     }
 
     /**
@@ -68,7 +68,7 @@ class Profiler_Console
      *
      * @return void
      */
-    public static function logError($exception, $message)
+    public function logError($exception, $message)
     {
         $logItem = array(
             'data' => $message,
@@ -77,8 +77,8 @@ class Profiler_Console
             'line' => $exception->getLine()
         );
 
-        self::$_logs['errors']['messages'][] = $logItem;
-        self::$_logs['errors']['count'] += 1;
+        $this->_logs['errors']['messages'][] = $logItem;
+        $this->_logs['errors']['count'] += 1;
     }
 
     /**
@@ -89,28 +89,26 @@ class Profiler_Console
      *
      * @return void
      */
-    public static function logSpeed($name = 'Point in Time')
+    public function logSpeed($name = 'Point in Time')
     {
         $logItem = array(
             'data' => microtime(true),
             'name' => $name
         );
 
-        self::$_logs['speed']['messages'][] = $logItem;
-        self::$_logs['speed']['count'] += 1;
+        $this->_logs['speed']['messages'][] = $logItem;
+        $this->_logs['speed']['count'] += 1;
     }
 
     /**
      * Records how long a query took to run when the same query is passed in twice.
-     *
-     * @static
      *
      * @param      $sql
      * @param null $explain
      *
      * @return mixed
      */
-    public static function logQuery($sql, $explain = null)
+    public function logQuery($sql, $explain = null)
     {
         // We use a hash of the query for two reasons. One is because for large queries the
         // hash will be considerably smaller in memory. The second is to make a dump of the
@@ -119,18 +117,18 @@ class Profiler_Console
 
         // If this query is in the log we need to see if an end time has been set. If no
         // end time has been set then we assume this call is closing a previous one.
-        if (isset(self::$_logs['queries']['messages'][$hash])) {
-            $query = array_pop(self::$_logs['queries']['messages'][$hash]);
+        if (isset($this->_logs['queries']['messages'][$hash])) {
+            $query = array_pop($this->_logs['queries']['messages'][$hash]);
             if (!$query['end_time']) {
                 $query['end_time'] = microtime(true);
                 $query['explain'] = $explain;
 
-                self::$_logs['queries']['messages'][$hash][] = $query;
+                $this->_logs['queries']['messages'][$hash][] = $query;
             } else {
-                self::$_logs['queries']['messages'][$hash][] = $query;
+                $this->_logs['queries']['messages'][$hash][] = $query;
             }
 
-            self::$_logs['queries']['count'] += 1;
+            $this->_logs['queries']['count'] += 1;
             return;
         }
 
@@ -141,7 +139,7 @@ class Profiler_Console
             'sql'        => $sql
         );
 
-        self::$_logs['queries']['messages'][$hash][] = $logItem;
+        $this->_logs['queries']['messages'][$hash][] = $logItem;
     }
 
     /**
@@ -152,18 +150,18 @@ class Profiler_Console
      * @return void
      *
      */
-    public static function logBenchmark($name)
+    public function logBenchmark($name)
     {
         $key = 'benchmark_ ' . $name;
 
-        if (isset(self::$_logs['benchmarks']['messages'][$key])) {
+        if (isset($this->_logs['benchmarks']['messages'][$key])) {
             $benchKey = md5(microtime(true));
 
-            self::$_logs['benchmarks']['messages'][$benchKey] = self::$_logs['benchmarks']['messages'][$key];
-            self::$_logs['benchmarks']['messages'][$benchKey]['end_time'] = microtime(true);
-            self::$_logs['benchmarks']['count'] += 1;
+            $this->_logs['benchmarks']['messages'][$benchKey] = $this->_logs['benchmarks']['messages'][$key];
+            $this->_logs['benchmarks']['messages'][$benchKey]['end_time'] = microtime(true);
+            $this->_logs['benchmarks']['count'] += 1;
 
-            unset(self::$_logs['benchmarks']['messages'][$key]);
+            unset($this->_logs['benchmarks']['messages'][$key]);
             return;
         }
 
@@ -173,7 +171,7 @@ class Profiler_Console
             'name'       => $name
         );
 
-        self::$_logs['benchmarks']['messages'][$key] = $logItem;
+        $this->_logs['benchmarks']['messages'][$key] = $logItem;
     }
 
     /**
@@ -181,8 +179,8 @@ class Profiler_Console
      *
      * @return array
      */
-    public static function getLogs()
+    public function getLogs()
     {
-        return self::$_logs;
+        return $this->_logs;
     }
 }

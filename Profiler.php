@@ -10,14 +10,14 @@ class Profiler_Profiler
      *
      * @var array
      */
-    public $output = array();
+    protected $_output = array();
 
     /**
      * Holds config data passed inot the constructor
      *
      * @var array
      */
-    public $config = array();
+    protected $_config = array();
 
     /**
      * The list of query types we care about for type specific stats
@@ -25,15 +25,34 @@ class Profiler_Profiler
      * @var array
      *
      */
-    protected $_queryTypes = array('select', 'update', 'delete', 'insert');
+    protected $_queryTypes = array(
+        'select',
+        'update',
+        'delete',
+        'insert'
+    );
+
+    /**
+     * @var Profiler_Console
+     */
+    protected $_console;
+
+    /**
+     * @var int|mixed|null
+     */
+    protected $_startTime;
+
+    /**
+     * @var bool
+     */
+    protected $_enable = true;
+
 
     /**
      * Sets the configuration options for this object and sets the start time.
      *
      * Possible configuration options include:
-     * <ul>
-     * <li><strong>query_explain_callback:</strong> Callback used to explain queries. Follow format used by call_user_func</li>
-     * </ul>
+     * query_explain_callback - Callback used to explain queries. Follow format used by call_user_func
      *
      * @param array $config    List of configuration options
      * @param int   $startTime Time to use as the start time of the profiler
@@ -44,8 +63,34 @@ class Profiler_Profiler
             $startTime = microtime(true);
         }
 
-        $this->startTime = $startTime;
-        $this->config = $config;
+        $this->_startTime = $startTime;
+        $this->_config = $config;
+
+        $this->_console = new Profiler_Console();
+    }
+
+    /**
+     * enable profiler
+     */
+    public function enable()
+    {
+        $this->_enabled = true;
+    }
+
+    /**
+     * disable profiler
+     */
+    public function disable()
+    {
+        $this->_enabled = false;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isEnabled()
+    {
+        return $this->_enabled;
     }
 
     /**
@@ -55,7 +100,7 @@ class Profiler_Profiler
      */
     public function setQueryExplainCallback($callback)
     {
-        $this->config['query_explain_callback'] = $callback;
+        $this->_config['query_explain_callback'] = $callback;
     }
 
     /**
@@ -66,7 +111,7 @@ class Profiler_Profiler
      */
     public function setQueryProfilerCallback($callback)
     {
-        $this->config['query_profiler_callback'] = $callback;
+        $this->_config['query_profiler_callback'] = $callback;
     }
 
     /**
@@ -74,7 +119,7 @@ class Profiler_Profiler
      */
     public function gatherConsoleData()
     {
-        $logs = Profiler_Console::getLogs();
+        $logs = $this->_console->getLogs();
         $result = $logs;
 
         foreach ($logs as $type => $item) {
@@ -98,7 +143,7 @@ class Profiler_Profiler
                         break;
                     case 'speed':
                         $data['type'] = 'speed';
-                        $data['data'] = $this->getReadableTime($message['data'] - $this->startTime);
+                        $data['data'] = $this->getReadableTime($message['data'] - $this->_startTime);
                         break;
                     case 'benchmarks':
                         $data['type'] = 'benchmark';
@@ -112,7 +157,7 @@ class Profiler_Profiler
             }
         }
 
-        $this->output['logs'] = $result;
+        $this->_output['logs'] = $result;
     }
 
     /**
@@ -137,8 +182,8 @@ class Profiler_Profiler
         $fileTotals['size'] = $this->getReadableFileSize($fileTotals['size']);
         $fileTotals['largest'] = $this->getReadableFileSize($fileTotals['largest']);
 
-        $this->output['files'] = $fileList;
-        $this->output['fileTotals'] = $fileTotals;
+        $this->_output['files'] = $fileList;
+        $this->_output['fileTotals'] = $fileTotals;
     }
 
     /**
@@ -150,7 +195,7 @@ class Profiler_Profiler
         $memoryTotals['used'] = $this->getReadableFileSize(memory_get_peak_usage());
         $memoryTotals['total'] = ini_get('memory_limit');
 
-        $this->output['memoryTotals'] = $memoryTotals;
+        $this->_output['memoryTotals'] = $memoryTotals;
     }
 
     /**
@@ -168,7 +213,7 @@ class Profiler_Profiler
         );
         $queryTotals = array('all' => 0, 'count' => 0, 'time' => 0, 'duplicates' => 0, 'types' => $types);
 
-        foreach ($this->output['logs']['queries']['messages'] as $entries) {
+        foreach ($this->_output['logs']['queries']['messages'] as $entries) {
             if (count($entries) > 1) {
                 $queryTotals['duplicates'] += 1;
             }
@@ -196,15 +241,15 @@ class Profiler_Profiler
                     $query['time'] = $this->getReadableTime($query['time']);
 
                     // If an explain callback is setup try to get the explain data
-                    if (isset($this->_queryTypes[$type]) && isset($this->config['query_explain_callback'])
-                        && !empty($this->config['query_explain_callback'])
+                    if (isset($this->_queryTypes[$type]) && isset($this->_config['query_explain_callback'])
+                        && !empty($this->_config['query_explain_callback'])
                     ) {
                         $query['explain'] = $this->_attemptToExplainQuery($query['sql']);
                     }
 
                     // If a query profiler callback is setup get the profiler data
-                    if (isset($this->config['query_profiler_callback'])
-                        && !empty($this->config['query_profiler_callback'])
+                    if (isset($this->_config['query_profiler_callback'])
+                        && !empty($this->_config['query_profiler_callback'])
                     ) {
                         $query['profile'] = $this->_attemptToProfileQuery($query['sql']);
                     }
@@ -225,8 +270,8 @@ class Profiler_Profiler
         }
 
         $queryTotals['time'] = $this->getReadableTime($queryTotals['time']);
-        $this->output['queries'] = $queries;
-        $this->output['queryTotals'] = $queryTotals;
+        $this->_output['queries'] = $queries;
+        $this->_output['queryTotals'] = $queryTotals;
     }
 
     /**
@@ -236,16 +281,16 @@ class Profiler_Profiler
     public function gatherSpeedData()
     {
         $speedTotals = array();
-        $speedTotals['total'] = $this->getReadableTime(microtime(true) - $this->startTime);
+        $speedTotals['total'] = $this->getReadableTime(microtime(true) - $this->_startTime);
         $speedTotals['allowed'] = ini_get('max_execution_time');
-        $this->output['speedTotals'] = $speedTotals;
+        $this->_output['speedTotals'] = $speedTotals;
     }
 
     /**
      * Converts a number of bytes to a more readable format
      *
      * @param int    $size      The number of bytes
-     * @param string $retstring The format of the return string
+     * @param mixed $retstring The format of the return string
      *
      * @return string
      */
@@ -323,7 +368,7 @@ class Profiler_Profiler
         $this->gatherQueryData();
         $this->gatherSpeedData();
 
-        return Profiler_Display::display($this->output, $returnAsString);
+        return Profiler_Display::display($this->_output, $returnAsString);
     }
 
     /**
@@ -337,7 +382,7 @@ class Profiler_Profiler
     {
         try {
             $sql = 'EXPLAIN ' . $sql;
-            return call_user_func_array($this->config['query_explain_callback'], $sql);
+            return call_user_func_array($this->_config['query_explain_callback'], $sql);
         } catch (Exception $e) {
             return array();
         }
@@ -353,9 +398,110 @@ class Profiler_Profiler
     protected function _attemptToProfileQuery($sql)
     {
         try {
-            return call_user_func_array($this->config['query_profiler_callback'], $sql);
+            return call_user_func_array($this->_config['query_profiler_callback'], $sql);
         } catch (Exception $e) {
             return array();
         }
+    }
+
+    /**
+     * Logs a variable to the console
+     *
+     * @param mixed $data The data to log to the console
+     *
+     * @return void
+     */
+    public function log($data)
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $this->_console->log($data);
+    }
+
+    /**
+     * Logs the memory usage of the provided variable, or entire script
+     *
+     * @param object $object Optional variable to log the memory usage of
+     * @param string $name   Optional name used to group variables and scripts together
+     *
+     * @return void
+     */
+    public function logMemory($object = null, $name = 'PHP')
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $this->_console->logMemory($object, $name);
+    }
+
+    /**
+     * Logs an exception or error
+     *
+     * @param Exception $exception
+     * @param string    $message
+     *
+     * @return void
+     */
+    public function logError($exception, $message)
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $this->_console->logError($exception, $message);
+    }
+
+    /**
+     * Starts a timer, a second call to this method will end the timer and cause the
+     * time to be recorded and displayed in the console.
+     *
+     * @param string $name
+     *
+     * @return void
+     */
+    public function logSpeed($name = 'Point in Time')
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $this->_console->logSpeed($name);
+    }
+
+    /**
+     * Records how long a query took to run when the same query is passed in twice.
+     *
+     * @param      $sql
+     * @param null $explain
+     *
+     * @return mixed
+     */
+    public function logQuery($sql, $explain = null)
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $this->_console->logQuery($sql, $explain);
+    }
+
+    /**
+     * Records the time it takes for an action to occur
+     *
+     * @param string $name The name of the benchmark
+     *
+     * @return void
+     *
+     */
+    public function logBenchmark($name)
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $this->_console->logBenchmark($name);
     }
 }

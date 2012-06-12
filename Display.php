@@ -7,6 +7,7 @@ class Profiler_Display
 {
     /**
      * Outputs the HTML, CSS and JavaScript that builds the console display
+     *
      * @static
      *
      * @param      $data
@@ -16,9 +17,9 @@ class Profiler_Display
      */
     public static function display($data, $returnAsString = false)
     {
-        $output = self::getCssJavascript();
+        $output = self::getCssAndJavascript();
 
-        $output .= '<div id="profiler-container" class="profiler hideDetails" style="display: none;">';
+        $output .= '<div id="profiler-container" class="profiler hideDetails">';
         $output .= '<div id="profiler" class="console">';
 
         $output .= self::getMetricsTabs($data);
@@ -106,9 +107,8 @@ class Profiler_Display
             $output .= '</tr>';
             $output .= '<tr>';
             $output
-                .=
-                '<td class="console-benchmarks" id="console-benchmark"><var>' . $data['logs']['benchmarks']['count']
-                    . '</var><h4>Benchmarks</h4></td>';
+                .= '<td class="console-benchmarks" id="console-benchmark"><var>' . $data['logs']['benchmarks']['count']
+                . '</var><h4>Benchmarks</h4></td>';
             $output .= '</tr>';
             $output .= '</table>';
             $output .= '<table class="main" cellspacing="0">';
@@ -204,8 +204,7 @@ class Profiler_Display
             $output .= '<table class="side" cellspacing="0">';
             $output .= '<tr><td><var>' . $data['queryTotals']['count'] . '</var><h4>Total Queries</h4></td></tr>';
             $output
-                .=
-                '<tr><td class="alt"><var>' . $data['queryTotals']['time'] . '</var> <h4>Total Time</h4></td></tr>';
+                .= '<tr><td class="alt"><var>' . $data['queryTotals']['time'] . '</var> <h4>Total Time</h4></td></tr>';
             $output
                 .= '<tr><td><var>' . $data['queryTotals']['duplicates'] . '</var> <h4>Duplicates</h4></td></tr>';
             $output .= '<tr><td class="alt">';
@@ -399,14 +398,19 @@ class Profiler_Display
      * @static
      *
      */
-    public static function getCssJavascript()
+    public static function getCssAndJavascript()
     {
-        /*
-        $output
-            = '<style type="text/css">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.css') . '</style>';
-        */
-        $output .= '<script type="text/javascript">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.js')
-            . '</script>';
+        $baseDir = dirname(__FILE__);
+
+        $css = file_get_contents($baseDir . '/resources/profiler.css');
+        $output = '<style type="text/css">' . $css . '</style>';
+
+        //$jqueryJs = file_get_contents($baseDir . '/resources/jquery-1.7.2.min.js');
+        $profilerJs = file_get_contents($baseDir . '/resources/jquery.php-profiler.js');
+        $output .= '<script type="text/javascript">';
+        $output .= $jqueryJs;
+        $output .= $profilerJs;
+        $output .= '</script>';
 
         return $output;
     }

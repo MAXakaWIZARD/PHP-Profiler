@@ -12,13 +12,11 @@
     }
 
     $(document).ready(function() {
-        setTimeout(function() {
-            $('#profiler-container')
-            .css('display', 'block')
-            .appendTo($('body').get(0));
-        }, 10);
+        $('#profiler-container')
+        .appendTo($('body').get(0))
+        .show();
 
-        $('.query-profile H4').css('cursor', 'pointer').click(function() {
+        $('.query-profile h4').css('cursor', 'pointer').click(function() {
             if ($('table', $(this).parent()).is(':hidden')) {
                 $(this).html('&#187; Hide Query Profile');
                 $('table', $(this).parent()).css('display', 'block');

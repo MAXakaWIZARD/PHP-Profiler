@@ -58,10 +58,10 @@ class Profiler_Display
 
         $tabs = array(
             'console' => array('title'=> 'Console', 'value'=> $logCount),
-            'speed'   => array('title'=> 'Load Time', 'value'=> $speedTotal),
+            'speed'   => array('title'=> 'Time', 'value'=> $speedTotal),
             'queries' => array('title'=> 'Database', 'value'=> $queryCount),
-            'memory'  => array('title'=> 'Memory Used', 'value'=> $memoryUsed),
-            'files'   => array('title'=> 'Included', 'value'=> $fileCount),
+            'memory'  => array('title'=> 'Memory', 'value'=> $memoryUsed),
+            'files'   => array('title'=> 'Files', 'value'=> $fileCount),
         );
 
         $output = '<div id="profiler-metrics">';

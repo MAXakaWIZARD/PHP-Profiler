@@ -408,9 +408,7 @@ class Profiler_Display
         $jqueryJs = file_get_contents($baseDir . '/resources/jquery-1.7.2.min.js');
         $profilerJs = file_get_contents($baseDir . '/resources/jquery.php-profiler.js');
         $output .= '<script type="text/javascript">';
-        $output .= "if (typeof jQuery === 'undefined') {";
-        $output .= $jqueryJs;
-        $output .= "\n}\n";
+        $output .= "if (typeof jQuery === 'undefined') { $jqueryJs }\n";
         $output .= $profilerJs;
         $output .= '</script>';
 

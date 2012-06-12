@@ -74,10 +74,6 @@
     color: #588E13;
 }
 
-#profiler-metrics #console {
-    color: #588E13;
-}
-
 #profiler-metrics #speed {
     color: #3769A0;
 }
@@ -104,19 +100,19 @@
     display: none;
 }
 
-.profiler .console,
-.profiler .speed,
-.profiler .queries,
-.profiler .memory,
-.profiler .files {
+#profiler-container .console,
+#profiler-container .speed,
+#profiler-container .queries,
+#profiler-container .memory,
+#profiler-container .files {
     display: block !important;
 }
 
-.profiler .console #profiler-console,
-.profiler .speed #profiler-speed,
-.profiler .queries #profiler-queries,
-.profiler .memory #profiler-memory,
-.profiler .files #profiler-files {
+#profiler-container .console #profiler-console,
+#profiler-container .speed #profiler-speed,
+#profiler-container .queries #profiler-queries,
+#profiler-container .memory #profiler-memory,
+#profiler-container .files #profiler-files {
     display: block;
 }
 
@@ -130,24 +126,25 @@
     cursor: default !important;
 }
 
-.hideDetails #profiler .profiler-box {
+#profiler-container.hideDetails #profiler .profiler-box {
     display: none;
 }
 
-.hideDetails #profiler-footer {
+#profiler-container.hideDetails #profiler-footer {
     border-top: 1px dotted #444;
 }
 
-.hideDetails #profiler #profiler-metrics td {
+#profiler-container.hideDetails #profiler #profiler-metrics td {
     height: 50px;
 }
 
-.hideDetails #profiler var {
+#profiler-container.hideDetails #profiler var {
     font-size: 18px;
     margin: 0 0 2px 0;
+    font-style: normal;
 }
 
-.hideDetails #profiler h4 {
+#profiler-container.hideDetails #profiler h4 {
     font-size: 10px;
 }
 
@@ -182,7 +179,7 @@
     text-shadow: #444 1px 1px 1px;
 }
 
-.profiler var {
+#profiler-container var {
     font-size: 23px;
     font-weight: bold;
     font-style: normal;
@@ -190,26 +187,26 @@
     display: block;
 }
 
-.profiler h4 {
+#profiler-container h4 {
     font-size: 12px;
     color: #fff;
     margin: 0 0 4px 0;
 }
 
 /* ----- Main ----- */
-.profiler .main {
+#profiler-container .main {
     width: 80%;
 }
 
-*+html .profiler .main {
+*+html #profiler-container .main {
     width: 78%;
 }
 
-* html .profiler .main {
+* html #profiler-container .main {
     width: 77%;
 }
 
-.profiler .main td {
+#profiler-container .main td {
     padding: 7px 15px;
     text-align: left;
     background: #151515;
@@ -219,48 +216,48 @@
     color: #FFF;
 }
 
-.profiler .main td, pre {
+#profiler-container .main td, pre {
     font-family: Monaco, "Consolas", "Lucida Console", "Courier New", monospace;
     font-size: 11px;
 }
 
-.profiler .main td.alt {
+#profiler-container .main td.alt {
     background: #111;
 }
 
-.profiler .main tr.alt td {
+#profiler-container .main tr.alt td {
     background: #2E2E2E;
     border-top: 1px dotted #4E4E4E;
 }
 
-.profiler .main tr.alt td.alt {
+#profiler-container .main tr.alt td.alt {
     background: #333;
 }
 
-.profiler .main td b {
+#profiler-container .main td b {
     float: right;
     font-weight: normal;
     color: #E6F387;
 }
 
-.profiler .main td:hover {
+#profiler-container .main td:hover {
     background: #2E2E2E;
 }
 
 /* ----- Side ----- */
-.profiler .side {
+#profiler-container .side {
     float: left;
     width: 20%;
     color: #fff;
     text-align: center;
 }
 
-.profiler .side var {
+#profiler-container .side var {
     color: #fff;
     font-size: 15px;
 }
 
-.profiler .side h4 {
+#profiler-container .side h4 {
     font-weight: normal;
     color: #F4FCCA;
     font-size: 11px;
@@ -323,46 +320,46 @@
     padding: 5px;
 }
 
-.profiler .log-benchmark td.type {
+#profiler-container .log-benchmark td.type {
     background: #84A360 !important;
 }
 
-.profiler .log-log td.type {
+#profiler-container .log-log td.type {
     background: #47740D !important;
 }
 
-.profiler .log-error td.type {
+#profiler-container .log-error td.type {
     background: #9B2700 !important;
 }
 
-.profiler .log-memory td.type {
+#profiler-container .log-memory td.type {
     background: #D28C00 !important;
 }
 
-.profiler .log-speed td.type {
+#profiler-container .log-speed td.type {
     background: #2B5481 !important;
 }
 
-.profiler .log-log pre {
+#profiler-container .log-log pre {
     color: #999;
 }
 
-.profiler .log-log td:hover pre {
+#profiler-container .log-log td:hover pre {
     color: #fff;
 }
 
-.profiler .log-benchmark em,
-.profiler .log-memory em,
-.profiler .log-speed em {
+#profiler-container .log-benchmark em,
+#profiler-container .log-memory em,
+#profiler-container .log-speed em {
     float: left;
     font-style: normal;
     display: block;
     color: #fff;
 }
 
-.profiler .log-benchmark pre,
-.profiler .log-memory pre,
-.profiler .log-speed pre {
+#profiler-container .log-benchmark pre,
+#profiler-container .log-memory pre,
+#profiler-container .log-speed pre {
     float: right;
     white-space: normal;
     display: block;

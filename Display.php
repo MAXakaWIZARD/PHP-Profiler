@@ -19,7 +19,7 @@ class Profiler_Display
     {
         $output = self::getCssAndJavascript();
 
-        $output .= '<div id="profiler-container" class="profiler hideDetails">';
+        $output .= '<div id="profiler-container" class="hideDetails">';
         $output .= '<div id="profiler" class="console">';
 
         $output .= self::getMetricsTabs($data);
@@ -64,7 +64,7 @@ class Profiler_Display
             'files'   => array('title'=> 'Included', 'value'=> $fileCount),
         );
 
-        $output .= '<table id="profiler-metrics" cellspacing="0">';
+        $output = '<table id="profiler-metrics" cellspacing="0">';
         $output .= '<tr>';
         foreach ($tabs as $tabId => $tabData) {
             $output .= '<td id="' . $tabId . '" class="tab">';
@@ -87,7 +87,7 @@ class Profiler_Display
      */
     public static function getConsoleTab($data)
     {
-        $output .= '<div id="profiler-console" class="profiler-box">';
+        $output = '<div id="profiler-console" class="profiler-box">';
 
         if (count($data['logs']['console']['messages']) == 0) {
             $output .= '<h3>This panel has no log items.</h3>';
@@ -159,7 +159,7 @@ class Profiler_Display
      */
     public static function getLoadTimeTab($data)
     {
-        $output .= '<div id="profiler-speed" class="profiler-box">';
+        $output = '<div id="profiler-speed" class="profiler-box">';
         if ($data['logs']['speed']['count'] == 0) {
             $output .= '<h3>This panel has no log items.</h3>';
         } else {
@@ -197,7 +197,7 @@ class Profiler_Display
      */
     public static function getDatabaseTab($data)
     {
-        $output .= '<div id="profiler-queries" class="profiler-box">';
+        $output = '<div id="profiler-queries" class="profiler-box">';
         if ($data['queryTotals']['count'] == 0) {
             $output .= '<h3>This panel has no log items.</h3>';
         } else {
@@ -306,7 +306,7 @@ class Profiler_Display
      */
     public static function getMemoryTab($data)
     {
-        $output .= '<div id="profiler-memory" class="profiler-box">';
+        $output = '<div id="profiler-memory" class="profiler-box">';
         if ($data['logs']['memory']['count'] == 0) {
             $output .= '<h3>This panel has no log items.</h3>';
         } else {
@@ -345,7 +345,7 @@ class Profiler_Display
      */
     public static function getFilesTab($data)
     {
-        $output .= '<div id="profiler-files" class="profiler-box">';
+        $output = '<div id="profiler-files" class="profiler-box">';
         if ($data['fileTotals']['count'] == 0) {
             $output .= '<h3>This panel has no log items.</h3>';
         } else {
@@ -379,9 +379,9 @@ class Profiler_Display
      */
     public static function getFooter()
     {
-        $output .= '<table id="profiler-footer" cellspacing="0">';
+        $output = '<table id="profiler-footer" cellspacing="0">';
         $output .= '<tr>';
-        $output .= '<td class="credit"><a href="http://github.com/steves/PHP-Profiler" target="_blank"><strong>PHP</strong>&nbsp;Profiler</a></td>';
+        $output .= '<td class="credit"><a href="https://github.com/MAXakaWIZARD/PHP-Profiler" target="_blank"><strong>PHP</strong>&nbsp;Profiler</a></td>';
         $output .= '<td class="actions">';
         $output .= '<a class="detailsToggle" href="#">Details</a>';
         $output .= '<a class="heightToggle" href="#">Toggle Height</a>';
@@ -408,7 +408,7 @@ class Profiler_Display
         //$jqueryJs = file_get_contents($baseDir . '/resources/jquery-1.7.2.min.js');
         $profilerJs = file_get_contents($baseDir . '/resources/jquery.php-profiler.js');
         $output .= '<script type="text/javascript">';
-        $output .= $jqueryJs;
+        //$output .= $jqueryJs;
         $output .= $profilerJs;
         $output .= '</script>';
 

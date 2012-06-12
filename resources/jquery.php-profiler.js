@@ -12,33 +12,28 @@
     }
 
     $(document).ready(function() {
-        $('#profiler-container')
-        .appendTo($('body').get(0))
-        .show();
 
-        $('.query-profile h4').css('cursor', 'pointer').click(function() {
+        //move console to the end ot body children
+        $('#profiler-container').appendTo($('body').get(0));
+
+        $('#profiler-container .query-profile h4').click(function() {
             if ($('table', $(this).parent()).is(':hidden')) {
                 $(this).html('&#187; Hide Query Profile');
-                $('table', $(this).parent()).css('display', 'block');
             } else {
                 $(this).html('&#187; Show Query Profile');
-                $('table', $(this).parent()).css('display', 'none');
             }
+
+            $('table', $(this).parent()).toggle();
         });
 
-        $('.detailsToggle').click(function() {
-            if (profiler_details) {
-                $('#profiler-container').addClass('hideDetails');
-                profiler_details = false;
-            } else {
-                $('#profiler-container').removeClass('hideDetails');
-                profiler_details = true;
-            }
+        $('#profiler-container .detailsToggle').click(function() {
+            $('#profiler-container').toggleClass('hideDetails', profiler_details);
+            profiler_details = !profiler_details;
 
             return false;
         });
 
-        $('.heightToggle').click(function() {
+        $('#profiler-container .heightToggle').click(function() {
             height_toggle = !height_toggle;
 
             $('.profiler-box').each(function() {
@@ -46,10 +41,8 @@
             });
         });
 
-        $('.tab').css('cursor', 'pointer').click(function() {
+        $('#profiler .tab').click(function() {
             hideAllTabs();
-
-            $(this).addClass('active');
             $('#profiler').addClass($(this).attr('id'));
 
             if (!profiler_details) {

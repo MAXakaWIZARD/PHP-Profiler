@@ -45,7 +45,7 @@ class Profiler_Profiler
     /**
      * @var bool
      */
-    protected $_enable = true;
+    protected $_enabled = true;
 
 
     /**
